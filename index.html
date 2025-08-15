@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NWLRP Development Task Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="layout-container">
+        <aside class="sidebar">
+            <div class="user-profile">
+                <img id="userAvatar" src="https://ui-avatars.com/api/?name=User" alt="User Avatar">
+                <h3 id="sidebarUserName">User</h3>
+                <p class="text-muted">Developer</p>
+            </div>
+            
+            <div class="user-stats">
+                <h4>Your Tasks</h4>
+                <div class="stat-item">
+                    <span>Assigned</span>
+                    <span id="userAssignedCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>In Progress</span>
+                    <span id="userProgressCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Completed</span>
+                    <span id="userCompletedCount">0</span>
+                </div>
+            </div>
+            
+            <button class="sign-out-btn" onclick="signOut()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign Out
+            </button>
+        </aside>
+
+        <div class="container">
+            <header>
+                <div class="header-content">
+                    <h1><i class="fas fa-tasks"></i> NWLRP -  Development Task Sheet</h1>
+                    <p class="header-subtitle">Welcome to your portal, <span id="userDisplay"></span></p>
+                </div>
+                <div class="button-container">
+                    <button id="addTaskBtn" class="btn-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        Add New Task
+                    </button>
+                    <button onclick="window.location.href='projects.html'" class="btn-primary btn-projects">
+                        <i class="fas fa-project-diagram"></i>
+                        View Projects
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <i class="fas fa-warning"></i>
+                    <h3>Awaiting Development Manager</h3>
+                    <p id="awaitingDevMgr">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Awaiting Review and Completion</h3>
+                    <p id="awaitingCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-code-branch"></i>
+                    <h3>In Progress</h3>
+                    <p id="inProgressCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Completed</h3>
+                    <p id="completedCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-pause-circle"></i>
+                    <h3>On Hold</h3>
+                    <p id="onHoldCount">0</p>
+                </div>
+            </div>
+
+            <div class="expand-completed">
+                <button id="toggleCompleted" class="btn-toggle">
+                    <i class="fas fa-chevron-down"></i>
+                    Show Completed Tasks
+                </button>
+            </div>
+
+            <div class="task-filters">
+                <div class="filter-group">
+                    <i class="fas fa-filter"></i>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="awaitingDevMgr">Awaiting Development Manager</option>
+                        <option value="complete">Complete</option>
+                        <option value="current">Currently in Progress</option>
+                        <option value="awaiting">Awaiting Review and Completion</option>
+                        <option value="onhold">On Hold</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <select id="priorityFilter">
+                        <option value="all">All Priorities</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <i class="fas fa-user"></i>
+                    <select id="developerFilter">
+                        <option value="all">All Developers</option>
+                    </select>
+                </div>
+                <div class="filter-group search-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchTask" placeholder="Search tasks...">
+                </div>
+            </div>
+
+            <div class="task-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-calendar-alt"></i> Date Added</th>
+                            <th><i class="fas fa-tasks"></i> Task</th>
+                            <th><i class="fas fa-flag"></i> Priority</th>
+                            <th><i class="fas fa-user-circle"></i> Developer</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                            <th><i class="fas fa-comments"></i> Comments</th>
+                            <th><i class="fas fa-cog"></i> Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taskList">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Add New Task</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">
+                        <i class="fas fa-pencil-alt"></i> Task Description
+                    </label>
+                    <textarea id="taskTitle" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskPriority">
+                            <i class="fas fa-exclamation-circle"></i> Priority
+                        </label>
+                        <select id="taskPriority" required>
+                            <option value="High">High Priority</option>
+                            <option value="Medium">Medium Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="assignedTo">
+                            <i class="fas fa-user"></i> Assigned Developers:
+                        </label>
+                        <select id="assignedTo" required>
+                            <option value="Anyone">Anyone</option>
+                            <option value="Mars">A.Mars</option>
+                            <option value="Nicholas">N.Henderson</option>
+                            <option value="Usage">Usage</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="taskStatus">
+                        <i class="fas fa-info-circle"></i> Status
+                    </label>
+                    <select id="taskStatus" required disabled>
+                        <option value="awaitingDevMgr">Awaiting Development Manager</option>
+                        <option value="Awaiting Development">Awaiting Development</option>
+                        <option value="Complete">Complete</option>
+                        <option value="Current (Project)">Current (Project)</option>
+                        <option value="On Hold">On Hold</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskComments">
+                        <i class="fas fa-comments"></i> Task Comments:
+                    </label>
+                    <textarea id="taskComments"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Save and Commit Task
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-project-diagram"></i> Add New Project</h2>
+                <span class="close project-close">&times;</span>
+            </div>
+            <form id="projectForm">
+                <div class="form-group">
+                    <label for="projectName">
+                        <i class="fas fa-folder"></i> Project Name
+                    </label>
+                    <input type="text" id="projectName" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">
+                        <i class="fas fa-file-alt"></i> Description
+                    </label>
+                    <textarea id="projectDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectDevs">
+                        <i class="fas fa-users"></i> Assigned Members of the Development Team
+                    </label>
+                    <div id="projectDevs" class="dev-checkboxes">
+                        <div><input type="checkbox" id="dev-Mars" value="Jack"><label for="dev-Mars">A.Mars (TheTrafficPlod)</label></div>
+                        <div><input type="checkbox" id="dev-Nicholas" value="N.Henderson"><label for="dev-Mars">N.Henderson</label></div>
+                        <div><input type="checkbox" id="dev-Usage" value="T.Mills"><label for="dev-Jasper">T.Mills (usage_4k)</label></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Create Project
+                </button>
+            </form>
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-a1HdkX2HgI4rMTquavB348KgB2tVNE8",
+            authDomain: "ukrp-88d8f.firebaseapp.com",
+            databaseURL: "https://ukrp-88d8f-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ukrp-88d8f",
+            storageBucket: "ukrp-88d8f.appspot.com",
+            messagingSenderId: "1043689647097",
+            appId: "1:1043689647097:web:071d06590267d203936b28"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <script>
+        if (!sessionStorage.getItem('auth_token')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="js/script.js"></script>
+</body>
+</html>
